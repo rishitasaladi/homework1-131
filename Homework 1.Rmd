@@ -1,0 +1,122 @@
+---
+title: "Homework 1"
+output:
+  html_document: default
+  pdf_document: default
+date: "2022-09-29"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+## Machine Learning Main Ideas
+
+1. Define supervised and unsupervised learning. What are the difference(s) between them?
+    Within supervised learning, the output is based off of a given set of inputs to make a prediction.
+    However, unsupervised learning, there are only inputs given. 
+
+2. Explain the difference between a regression model and a classification model, specifically in the context of machine learning.
+    A regression model is used when the output is quantitative or continuous. 
+    A classification model is used for qualitative outputs, many times those of which are non-numerical.
+
+3. Name two commonly used metrics for regression ML problems. Name two commonly used metrics for classification ML problems.
+    Regression: Method of Least Squares, MSE (From the Lecture)
+    Classification: Error rate, Bias-Variance (From the Lecture) 
+
+
+4. As discussed, statistical models can be used for different purposes. These purposes can generally be classified into the following three categories. Provide a brief description of each.
+
+Descriptive models: Visually emphasizes a trend in data (Lecture)
+
+Inferential models: Test theories and state relationship between the outcome and predictors (Lecture)
+
+Predictive models: aims to predict Y with minimum reducible error (lecture)
+
+
+
+5. Predictive models are frequently used in machine learning, and they can usually be described as either mechanistic or empirically-driven. Answer the following questions.
+
+  Define mechanistic. Define empirically-driven. How do these model types differ? How are they similar?
+    Mechanistic models assumes certain parameters about a population while empirically driven doesn't.      Instead empirically-driven models require more observations and are more flexible.
+
+  In general, is a mechanistic or empirically-driven model easier to understand? Explain your choice.
+    Mechanistic models allow us to make some basic assumptions and come to a conclusion, and if there are not too many parameters, there is a smaller chance of overfitting.
+
+  Describe how the bias-variance tradeoff is related to the use of mechanistic or empirically-driven models.
+    The bias-variance tradeoff emphasizes the indirect relationship between the two. A flexible model, like an empirically-driven model, generally has a low bias and a high variance. However, a mechanistic model, where one assumes certian parameters about the population, implicitly tends to have a higher bias and lower variance. 
+
+
+
+6. A political candidate’s campaign has collected some detailed voter history data from their constituents. The campaign is interested in two questions:
+
+Given a voter’s profile/data, how likely is it that they will vote in favor of the candidate?
+  Predictive, when looking at just the voter's profile/data, deoending on how much of it fits best with one candidate would stand out.  
+
+How would a voter’s likelihood of support for the candidate change if they had personal contact with the candidate?
+  Inferential, personal contact with a condidate influences the voter differently than the voter just focusing on the candidate's campaign. Depending on the interaction, it can sway the voter more than knowing what the candidate stands for. Hence, focusing on the more significant features and understanding the relationship would be more important.
+
+Classify each question as either predictive or inferential. Explain your reasoning for each.
+
+
+## Exploratory Data Analysis
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(ISLR)
+library(ggplot2)
+```
+
+1. We are interested in highway miles per gallon, or the hwy variable. Create a histogram of this variable. Describe what you see/learn.
+    The histogram shows how majority of cars have a fuel efficiency of 25-30 on the highway. Very few have a high fuel efficiency. 
+
+```{r, echo = TRUE}
+hist(mpg$hwy)
+```
+
+
+2. Create a scatterplot. Put hwy on the x-axis and cty on the y-axis. Describe what you notice. Is there a relationship between hwy and cty? What does this mean?
+When a vehicle has a higher highway mileage, it also follows that it has a high city mileage. The two variables seem to have a positive, linear correlation. 
+
+```{r}
+ggplot(mpg, aes(x=hwy, y=cty)) +
+  geom_point(size=2)
+```
+
+
+3. Make a bar plot of manufacturer. Flip it so that the manufacturers are on the y-axis. Order the bars by height. Which manufacturer produced the most cars? Which produced the least?
+    Dodge produced the most cars and Lincoln produced the least amount of cars
+
+```{r}
+ggplot(mpg, aes(y=reorder(manufacturer, manufacturer, length))) +
+  geom_bar() +
+  ylab("manufacturer")
+```
+
+
+4. Make a box plot of hwy, grouped by cyl. Do you see a pattern? If so, what?
+    As the cyl increases, hwy decreases, they have an indirect relationship.
+    As the number of cylinders in an engine increases, the car's fuel efficiency on the highway decreases.
+
+```{r}
+boxplot(hwy ~ cyl, data = mpg)
+```
+
+
+5. Use the corrplot package to make a lower triangle correlation matrix of the mpg dataset.
+Which variables are positively or negatively correlated with which others? Do these relationships make sense to you? Are there any that surprise you?
+    (Cyl, displ) and (hwy, cty) have positive correlations while (cty, displ), (hwy, displ), (cty, cyl), (hwy, cyl) all have negative correlations with each other. 
+    I am a little surprised by the lack of a correlation between year and the city and highway fuel efficiency. I assumed, as the years advance, manufacturers would find a way to make more efficient cars. 
+
+```{r}
+library(corrplot)
+```
+
+```{r}
+datam <- mpg %>%
+  select(-manufacturer, -model, -trans, -drv, -fl, -class)
+M <- cor(datam)
+corrplot(M, method = 'number', type = "lower")
+
+```
